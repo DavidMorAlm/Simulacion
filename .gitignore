@@ -1,0 +1,5 @@
+# Archivos/directorios a ignorar
+
+.vscode/
+simu/
+*.DS_Store
