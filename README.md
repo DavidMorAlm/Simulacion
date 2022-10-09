@@ -1,7 +1,6 @@
 
 # Simulacion | Proyecto integrado
 
->
 > ***By DavidMorAlm***
 > *Language: Python 3.10*
 >
