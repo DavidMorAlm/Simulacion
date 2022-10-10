@@ -3,3 +3,5 @@
 .vscode/
 simu/
 *.DS_Store
+__pycache__/
+Numeros.csv

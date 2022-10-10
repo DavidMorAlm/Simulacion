@@ -22,7 +22,7 @@
 
 ### **Pruebas de bondad**
 
-* Prueba de normalidad con el método Chi-Cuadrada
+* Prueba de normalidad con el método `Chi-Cuadrada`
 
 ### **Ejercicios de simulación**
 
