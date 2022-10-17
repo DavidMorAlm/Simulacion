@@ -1,12 +1,11 @@
-from Simulacion import n
 import Transformada as ti
+from Leer import leerNum
 import statistics as sts
 import datetime
-from fractions import Fraction
 
 
 # Ejercicio camiones
-l = n.l.copy()
+l = leerNum('Numeros.csv') # Lista de numeros
 t = open("tiCamiones.csv", "r")
 with open("Camiones.csv", "w") as f:
     f.write(
@@ -23,20 +22,19 @@ with open("Camiones.csv", "w") as f:
 '''
 horaInicio = datetime.datetime(100, 1, 1, 23, 0)
 horaFin = datetime.datetime(100, 1, 2, 7, 30)
-horaComida = datetime.datetime(100, 1, 1, 3, 0)
-horaFinComida = datetime.datetime(100, 1, 1, 3, 30)
+horaComida = datetime.datetime(100, 1, 2, 3, 0)
+horaFinComida = datetime.datetime(100, 1, 2, 3, 30)
 Empleados = 3
 CostEsperaCamion = 100
-Salario = 25
-CostoNormal = 0
-TiempoExtra = 37.5
-CostoExtra = 0
+Salario, CostoNormal = 25, 0
+TiempoExtra, CostoExtra = 37.5, 0
 CostoAlmacen = 500
 CostTotal = 0
 
 horaAct = horaInicio
 horaSalida = 0
 totalEsp = datetime.datetime(100, 1, 1, 0, 0)
+comieron = False
 
 # Almacenar las tablas de probabilidades.
 a, b = ti.leerTi(t)  # Numero de camiones en espera antes de abrir
@@ -46,61 +44,110 @@ g, h = ti.leerTi(t)  # Tiempo de servicio (4 personas)
 i, j = ti.leerTi(t)  # Tiempo de servicio (5 personas)
 m, n = ti.leerTi(t)  # Tiempo de servicio (6 personas)
 
+if Empleados == 3:
+    t1, t2 = e, o
+elif Empleados == 4:
+    t1, t2 = g, h
+elif Empleados == 5:
+    t1, t2 = i, j
+else:
+    t1, t2 = m, n
 
-# Simular el numero de camiones en cola antes de que abra el negocio.
 f = open("Camiones.csv", "a")
 
 
+# Simulación del ejercicio
+
 # Verificar el primer camion en ingresar al almacen.
 pse = round(l.pop(0), 4)
-numCamiones = ti.gTi(a, b, pse)
+numCamiones = int(ti.gTi(a, b, pse)) # Simular el numero de camiones en cola antes de que abra el negocio.
 f.write(f"{pse},{numCamiones},")
-if numCamiones == 0:    # Si no hay camiones en espera, antes de que se abra el negocio.
+
+if numCamiones == 0:
     pse = round(l.pop(0), 4)
     horaLleg = horaAct + \
-        datetime.timedelta(minutes=ti.gTi(c, d, pse))  # type: ignore
+        datetime.timedelta(minutes=ti.gTi(c, d, pse))
     horaAct = horaLleg
-    horaEntrada = horaLleg
-    f.write(
-        f"{pse},{horaLleg.time().isoformat('minutes')},{horaEntrada.time().isoformat('minutes')},")
-    pse = round(l.pop(0), 4)
-    tiempoDescarga = ti.gTi(e, o, pse)
-    horaSalida = horaEntrada + \
-        datetime.timedelta(minutes=tiempoDescarga)  # type: ignore
-    tiempoEsp = horaEntrada - \
-        datetime.timedelta(hours=horaLleg.time().hour,
-                           minutes=horaLleg.time().minute)
-    totalEsp = totalEsp + datetime.timedelta(
-        hours=tiempoEsp.time().hour, minutes=tiempoEsp.time().minute)  # type: ignore
-    f.write(f"{pse},{tiempoDescarga},{horaSalida.time().isoformat('minutes')},{tiempoEsp.time().isoformat('minutes')}\n")
-else:  # En caso de que haya camiones en espera.
-    print("Hay camiones en espera antes de que se abra el negocio.")
+else:
+    pse = 'N/A'
+    horaLleg = horaAct
+
+horaEntrada = horaLleg
+f.write(
+    f"{pse},{horaLleg.time().isoformat('minutes')},{horaEntrada.time().isoformat('minutes')},")
+
+pse = round(l.pop(0), 4)
+tiempoDescarga = ti.gTi(t1, t2, pse)
+
+horaSalida = horaEntrada + \
+    datetime.timedelta(minutes=tiempoDescarga)
+
+tiempoEsp = horaEntrada - \
+    datetime.timedelta(hours=horaLleg.time().hour,
+                        minutes=horaLleg.time().minute)
+totalEsp = totalEsp + datetime.timedelta(
+    hours=tiempoEsp.time().hour, minutes=tiempoEsp.time().minute)  
+
+f.write(f"{pse},{tiempoDescarga},{horaSalida.time().isoformat('minutes')},{tiempoEsp.time().isoformat('minutes')}\n")
+
+
+if (numCamiones > 1): # En caso de que haya camiones en espera.
+    for i in range(numCamiones - 1):
+        horaEntrada = horaSalida
+        f.write(
+            f",,N/A,{horaInicio.time().isoformat('minutes')},{horaEntrada.time().isoformat('minutes')},")
+
+        pse = round(l.pop(0), 4)
+        tiempoDescarga = ti.gTi(t1, t2, pse)
+
+        horaSalida = horaEntrada + \
+            datetime.timedelta(minutes=tiempoDescarga)
+
+        tiempoEsp = horaEntrada - \
+            datetime.timedelta(hours=horaLleg.time().hour,
+                                minutes=horaLleg.time().minute)
+
+        totalEsp = totalEsp + datetime.timedelta(
+            hours=tiempoEsp.time().hour, minutes=tiempoEsp.time().minute)  
+
+        f.write(f"{pse},{tiempoDescarga},{horaSalida.time().isoformat('minutes')},{tiempoEsp.time().isoformat('minutes')}\n")
+
 
 
 # Simular el resto de los camiones.
-while (horaAct < horaFin):
+while True:
     pse = round(l.pop(0), 4)
     horaLleg = horaAct + \
-        datetime.timedelta(minutes=ti.gTi(c, d, pse))  # type: ignore
+        datetime.timedelta(minutes=ti.gTi(c, d, pse))
     horaAct = horaLleg
-    if horaSalida.time() == horaComida.time():  # type: ignore
-        horaSalida = horaFinComida
-    if horaSalida.time() <= horaLleg.time():  # type: ignore
+
+    if horaAct > horaFin:
+        break
+
+    if (horaSalida >= horaComida) & (comieron == False):  
+        if horaSalida >= horaFinComida:
+            rango = horaFinComida - horaComida
+            horaSalida = horaSalida + rango
+        else:
+            horaSalida = horaFinComida
+        comieron = True
+
+    if horaSalida <= horaLleg: 
         horaEntrada = horaLleg
     else:
-        horaEntrada = horaSalida   # type: ignore
+        horaEntrada = horaSalida 
+
     f.write(
-        f",,{pse},{horaLleg.time().isoformat('minutes')},{horaEntrada.time().isoformat('minutes')},")  # type: ignore
+        f",,{pse},{horaLleg.time().isoformat('minutes')},{horaEntrada.time().isoformat('minutes')},")
     pse = round(l.pop(0), 4)
     tiempoDescarga = ti.gTi(e, o, pse)
     horaSalida = horaEntrada + \
-        datetime.timedelta(minutes=tiempoDescarga)  # type: ignore
+        datetime.timedelta(minutes=tiempoDescarga)
     tiempoEsp = horaEntrada - \
         datetime.timedelta(hours=horaLleg.time().hour,
-                           minutes=horaLleg.time().minute)  # type: ignore
+                           minutes=horaLleg.time().minute) 
     totalEsp = totalEsp + datetime.timedelta(
-        hours=tiempoEsp.time().hour, minutes=tiempoEsp.time().minute)  # type: ignore
-    # type: ignore
+        hours=tiempoEsp.time().hour, minutes=tiempoEsp.time().minute)
     f.write(f"{pse},{tiempoDescarga},{horaSalida.time().isoformat('minutes')},{tiempoEsp.time().isoformat('minutes')}\n")
 
 f.close()
@@ -112,23 +159,25 @@ CostEsperaCamion = (totalEsp.time().hour +
                     totalEsp.time().minute / 60) * CostEsperaCamion
 CostTotal += CostEsperaCamion
 print(f"Costo de espera del camion: ${CostEsperaCamion}")
-horario = horaFin - \
-    datetime.timedelta(hours=horaInicio.time().hour,
-                       minutes=horaInicio.time().minute)
+
+horario = datetime.datetime(100, 1, 1)
+horario += horaFin - horaInicio
 CostoNormal = horario.time().hour * Empleados * Salario
 CostTotal += CostoNormal
 print(f"Costo tiempo normal operadores: ${CostoNormal}")
-CostoExtra = horaSalida - \
-    datetime.timedelta(hours=horaFin.time().hour,
-                       minutes=horaFin.time().minute)  # type: ignore
-CostoExtra = CostoExtra.time().hour + CostoExtra.time().minute / 60  # type: ignore
-if CostoExtra > 0:  # type: ignore
-    CostoExtra = CostoExtra * Empleados * TiempoExtra  # type: ignore
+
+if horaSalida > horaFin:
+    rango = horaSalida - horaFin
+    CostoExtra = datetime.datetime(100,1,1)
+    CostoExtra += rango
+    CostoExtra = CostoExtra.time().hour + CostoExtra.time().minute / 60 
+    CostoExtra = CostoExtra * Empleados * TiempoExtra 
     CostTotal += CostoExtra
     print(f"Costo tiempo extra operadores: ${CostoExtra}")
-horario = horaSalida - datetime.timedelta(
-    hours=horaInicio.time().hour, minutes=horaInicio.time().minute)  # type: ignore
-horario = horario.time().hour + horario.time().minute / 60  # type: ignore
+
+horario = datetime.datetime(100,1,1)
+horario += horaSalida - horaInicio
+horario = horario.time().hour + horario.time().minute / 60
 CostoAlmacen = horario * CostoAlmacen
 CostTotal += CostoAlmacen
 CostTotal = round(CostTotal, 3)

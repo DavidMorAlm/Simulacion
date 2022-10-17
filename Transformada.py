@@ -1,8 +1,9 @@
 from fractions import Fraction
+from io import TextIOWrapper
 # Funcion peek para previsualizar caracteres sin consumir.
 
 
-def peek(f):
+def peek(f: TextIOWrapper) -> str:
     pos = f.tell()
     line = f.readline()
     f.seek(pos)
@@ -13,7 +14,7 @@ def peek(f):
 '''Devuelve dos listas, una almacena el valor de la variable aleatoria y la otra su probabilidad.'''
 
 
-def leerTi(f):
+def leerTi(f: TextIOWrapper) -> tuple:
     if f.closed:
         return 0, 0
     else:
@@ -32,10 +33,10 @@ def leerTi(f):
 
 
 # Funcion para generar la Transformada Inversa y devuelve el valor aleatorio correspondiente.
-def gTi(a, b, pseudo):
+def gTi(a: list[float], b: list[float], pseudo: float) -> float:
     a = a.copy()
     b = b.copy()
-    li = 0
+    li = 0.0
     ls = b.pop(0)
     for i in a:
         if li <= pseudo < ls:
@@ -44,4 +45,5 @@ def gTi(a, b, pseudo):
             return a[-1]
         else:
             li = ls
-            ls = ls + b.pop(0)
+            ls += b.pop(0)
+    return 0.0
