@@ -5,3 +5,5 @@ simu/
 *.DS_Store
 __pycache__/
 Numeros.csv
+Histograma.py
+pruebas.py
