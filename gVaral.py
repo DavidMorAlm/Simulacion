@@ -40,7 +40,7 @@ def writeNumbers(n: list[float] | list[int], name: str) -> None:
 
 
 # Funcion para realizar la prueba de bondad de normalidad dada una lista de numeros, el valor de mu, desv estandar y el nivel de significancia
-def testNormal(n: list[float], mu: float, desv: float, alpha: float = 0.05) -> bool:
+def testNormal(n: list[float], mu: float, desv: float, alpha: float = 0.05) -> tuple:
     # Haciendo la prueba de de chi-cuadrada para una distribucion Normal
     numInt = int(math.sqrt(len(n)))
     anchoClase = (max(n)) / (numInt)
@@ -75,15 +75,15 @@ def testNormal(n: list[float], mu: float, desv: float, alpha: float = 0.05) -> b
         f.write(f"\nTotales,{sum(oi)},{sum(px)},Chi calculada,{suma}")
         f.write(f"\n,,,Chi tablas,{chi2}")
     if (suma < chi2):
-        print(f'La distribucion es normal -> {suma} < {chi2}')
-        return True
+        msg = f'La distribucion es normal -> {suma} < {chi2}'
+        return True, msg
     else:
-        print('La distribucion no es normal')
-        return False
+        msg = 'La distribucion no es normal'
+        return False, msg
 
 
 # Funcion para realizar la prueba de bondad de Poisson, se requiere el valor de lamda y el nivel de significancia
-def testPoisson(p: list[int], lam: float, alpha: float = 0.05) -> bool:
+def testPoisson(p: list[int], lam: float, alpha: float = 0.05) -> tuple:
     nMin = min(p)
     nMax = max(p)
     if nMin != 0:
@@ -120,11 +120,11 @@ def testPoisson(p: list[int], lam: float, alpha: float = 0.05) -> bool:
         f.write(f"\n,,,Chi tablas,{chi2}")
     # print(intervals)
     if (suma < chi2):
-        print(f'La distribucion es de Poisson -> {suma} < {chi2}')
-        return True
+        msg = f'La distribucion es de Poisson -> {suma} < {chi2}'
+        return True, msg
     else:
-        print('La distribucion no es de Poisson')
-        return False
+        msg = 'La distribucion no es de Poisson'
+        return False, msg
 
 if __name__ == '__main__':
     # Probando con 50 numeros aleatorios generados con el algoritmo de Poisson

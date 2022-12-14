@@ -3,7 +3,7 @@ from Leer import leerNum
 import statistics as sts
 import datetime
 
-def camiones():
+def camiones(Empleados: int, CostEsperaCamion: float, Salario: float, TiempoExtra: float, CostoAlmacen: float, corridas: int):
     # Ejercicio camiones
     l = leerNum('data_Simulacion/Numeros.csv') # Lista de numeros
     t = open("TIs/tiCamiones.csv", "r")
@@ -22,11 +22,8 @@ def camiones():
     horaFin = datetime.datetime(100, 1, 2, 7, 30)
     horaComida = datetime.datetime(100, 1, 2, 3, 0)
     horaFinComida = datetime.datetime(100, 1, 2, 3, 30)
-    Empleados = 3
-    CostEsperaCamion = 100
-    Salario, CostoNormal = 25, 0
-    TiempoExtra, CostoExtra = 37.5, 0
-    CostoAlmacen = 500
+    CostoNormal = 0
+    CostoExtra = 0
     CostTotal = 0
 
 
@@ -52,7 +49,7 @@ def camiones():
 
     # Simulación del ejercicio
 
-    for i in range(10):
+    for i in range(corridas):
 
         f.write(
             "#pse,Numero camion,#pse,Hora de llegada,Hora de entrada a descarga,#pse,Tiempo de descarga,Hora de salida del camion,Tiempo de espera\n")

@@ -13,6 +13,7 @@ class Pseudo:
         self.a = 1 + (4 * self.k)
         self.l = []
         self.archivo = open("data_Simulacion/Numeros.csv", "w")
+        self.msg = []
 
     def gLineal(self):
         for i in range(self.m):
@@ -32,11 +33,11 @@ class Pseudo:
             p += i
         p /= self.m
         if li <= p <= ls:
-            print(
+            self.msg.append(
                 f"No se puede rechazar que el conjunto ri tiene un valor esperado de 1/2 con un nivel de aceptacion de {(1 - alpha) * 100:.0f}%")
             result = True
         else:
-            print("Se rechaza que el conjunto ri tiene un valor esperado de 1/2.")
+            self.msg.append("Se rechaza que el conjunto ri tiene un valor esperado de 1/2.")
             result = False
         return result
 
@@ -54,11 +55,11 @@ class Pseudo:
         ls = st.chi2.isf(alpha / 2, gl) / (12 * gl)
         li = st.chi2.isf(1 - alpha / 2, gl) / (12 * gl)
         if li <= var <= ls:
-            print(
+            self.msg.append(
                 f"No se puede rechazar que el conjunto ri tiene una varianza de 1/12 con un nivel de aceptacion de {(1 - alpha) * 100:.0f}%")
             result = True
         else:
-            print("Se rechaza que el conjunto ri tiene una varianza de 1/12.")
+            self.msg.append("Se rechaza que el conjunto ri tiene una varianza de 1/12.")
             result = False
         return result
 
@@ -86,11 +87,11 @@ class Pseudo:
         for i in range(m):
             estChi += math.pow((freqEsperada - intervalos[2][i]), 2) / freqEsperada
         if estChi < chi:
-            print(
+            self.msg.append(
                 f"No se puede rechazar que el conjunto ri sigue una distribucion uniforme con un nivel de aceptacion de {(1 - alpha) * 100:.0f}%")
             result = True
         else:
-            print("Se rechaza que el conjunto ri sigue una distribucion uniforme.")
+            self.msg.append("Se rechaza que el conjunto ri sigue una distribucion uniforme.")
             result = False
         return result
 
@@ -118,10 +119,10 @@ class Pseudo:
         z0 = (c0 - valorEsp) / (math.sqrt(var))
         z = abs(st.norm.ppf(alpha / 2))
         if (-1)*z < z0 < z:
-            print(
+            self.msg.append(
                 f"No se puede rechazar que el conjunto de ri es independiente con un nivel de aceptacion de {(1 - alpha) * 100:.0f}%")
             resultado = True
         else:
-            print("Los numeros del conjunto ri no son independientes.")
+            self.msg.append("Los numeros del conjunto ri no son independientes.")
             resultado = False
         return resultado
