@@ -12,14 +12,14 @@ class Pseudo:
         self.m = int(math.pow(2, self.g))
         self.a = 1 + (4 * self.k)
         self.l = []
-        self.archivo = open("Numeros.csv", "w")
+        self.archivo = open("data_Simulacion/Numeros.csv", "w")
 
     def gLineal(self):
         for i in range(self.m):
             ri = self.x0 / (self.m - 1)
             self.x0 = ((self.a * self.x0) + self.c) % self.m
             self.l.append(ri)
-            with open("Numeros.csv", "a") as self.archivo:
+            with open("data_Simulacion/Numeros.csv", "a") as self.archivo:
                 self.archivo.write(str(ri) + "\n")
 
     def pMedias(self, alpha : float) -> bool:

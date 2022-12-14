@@ -3,11 +3,9 @@ import math
 from scipy import stats
 import matplotlib.pyplot as plt
 
-l = leerNum('Numeros.csv')
-
 
 # Generacion de la variable aleatoria con distribucion de Poisson
-def gPoisson(lam: int, N: int = 0, T: float = 1, pse: list[float] = l.copy()) -> int:
+def gPoisson(lam: int, N: int = 0, T: float = 1, pse: list[float] = leerNum('data_Simulacion/Numeros.csv').copy()) -> int:
     Tp = T * pse.pop(0)
     if Tp >= math.exp(-lam):
         N += 1
@@ -18,7 +16,7 @@ def gPoisson(lam: int, N: int = 0, T: float = 1, pse: list[float] = l.copy()) ->
 
 
 # Generacion de la variable aleatoria con distribucion Normal
-def gNorm(mu: float, desv: float, pse: list[float] = l.copy()) -> float:
+def gNorm(mu: float, desv: float, pse: list[float] = leerNum('data_Simulacion/Numeros.csv').copy()) -> float:
     n: float = (sum([pse.pop(0) for i in range(12)]) - 6) * desv + mu
     if n <= 0:
         return gNorm(mu, desv)
@@ -32,6 +30,13 @@ def printHistogram(n: list[float] | list[int], bins: list[float] | list[int], ti
     plt.xticks(bins)
     plt.yticks(range(0, 21, 2))
     plt.show()
+
+
+# Funcion para escribir la lista de numeros en un archivo csv
+def writeNumbers(n: list[float] | list[int], name: str) -> None:
+    with open(name + ".csv", 'w') as a:
+        for num in n:
+            a.write(f'{num}\n')
 
 
 # Funcion para realizar la prueba de bondad de normalidad dada una lista de numeros, el valor de mu, desv estandar y el nivel de significancia
@@ -63,11 +68,8 @@ def testNormal(n: list[float], mu: float, desv: float, alpha: float = 0.05) -> b
     errors = [((ei[i] - oi[i]) ** 2) / ei[i] for i in range(len(ei))]
     suma = sum(errors)
     chi2 = stats.chi2.ppf(1 - alpha, len(intervals) - 1)
-    with open("gNormal.csv", 'w') as a:
-        for num in n:
-            a.write(f'{num}\n')
-    with open('Normal.csv', 'w') as f:
-        f.write("\nIntervalo,oi,px,ei,errors\n")
+    with open('data_GVarAl/Normal/Normal.csv', 'w') as f:
+        f.write("Intervalo,oi,px,ei,errors\n")
         for i in range(len(intervals)):
             f.write(f"{round(intervals[i][0], 3)} - {round(intervals[i][1], 3)},{oi[i]},{px[i]},{ei[i]},{errors[i]}\n")
         f.write(f"\nTotales,{sum(oi)},{sum(px)},Chi calculada,{suma}")
@@ -110,16 +112,13 @@ def testPoisson(p: list[int], lam: float, alpha: float = 0.05) -> bool:
     errors = [((ei[i] - oi[i]) ** 2 / ei[i]) for i in range(len(oi))]
     suma = sum(errors)
     chi2 = stats.chi2.ppf(1 - alpha, len(intervals) - 1)
-    with open("gPoisson.csv", 'w') as a:
-        for num in p:
-            a.write(f'{num}\n')
-    with open('Poisson.csv', 'w') as f:
-        f.write("\nIntervalo,oi,px,ei,errors\n")
+    with open('data_GVarAl/Poisson/Poisson.csv', 'w') as f:
+        f.write("Intervalo,oi,px,ei,errors\n")
         for i in range(len(intervals)):
             f.write(f"{intervals[i][0]}-{intervals[i][1]},{oi[i]},{px[i]},{ei[i]},{errors[i]}\n")
         f.write(f"\nTotales,{sum(oi)},{sum(px)},Chi calculada,{suma}")
         f.write(f"\n,,,Chi tablas,{chi2}")
-    print(intervals)
+    # print(intervals)
     if (suma < chi2):
         print(f'La distribucion es de Poisson -> {suma} < {chi2}')
         return True
@@ -127,14 +126,16 @@ def testPoisson(p: list[int], lam: float, alpha: float = 0.05) -> bool:
         print('La distribucion no es de Poisson')
         return False
 
+if __name__ == '__main__':
+    # Probando con 50 numeros aleatorios generados con el algoritmo de Poisson
+    lam = 17
+    p = [gPoisson(lam) for i in range(50)]
+    writeNumbers(p, 'data_GVarAl/Poisson/gPoisson')
+    testPoisson(p, lam)
 
-# Probando con 50 numeros aleatorios generados con el algoritmo de Poisson
-lam = 17
-p = [gPoisson(lam) for i in range(50)]
-testPoisson(p, lam)
-
-# Probando con 100 numeros aleatorios generados con el algoritmo normal
-mu = 10.0
-desv = 6.5
-n = [gNorm(mu, desv) for i in range(100)]
-testNormal(n, mu, desv)
+    # Probando con 100 numeros aleatorios generados con el algoritmo normal
+    mu = 10.0
+    desv = 6.5
+    n = [gNorm(mu, desv) for i in range(100)]
+    writeNumbers(n, 'data_GVarAl/Normal/gNormal')
+    testNormal(n, mu, desv)
