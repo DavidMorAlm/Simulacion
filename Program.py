@@ -48,7 +48,7 @@ def main():
         [psg.Text('Lanzamientos por replica: ', size=20, font='Calibri 12'),
          psg.InputText(size=5, key='lanzamientos')],
         [psg.Text('Replicas: ', size=20, font='Calibri 12'),
-         psg.InputText(size=5, key='replicas')],
+         psg.InputText(size=5, key='replicasDados')],
         [psg.Button('Correr Simulacion', size=(15, 1), key='simudado', button_color=('black', 'white')),
          psg.Button('Intervalo de confianza', size=(15, 1), key='interval', button_color=('black', 'white'))],
         [psg.Button('Close', size=(15, 1),
@@ -66,7 +66,7 @@ def main():
          psg.InputText('37.5', size=5, key='tiempoextra')],
         [psg.Text('Costo Almacen: ', size=20, font='Calibri 12'),
          psg.InputText('500', size=5, key='costoalmacen')],
-        [psg.Text('Replicas: ', size=6, font='Calibri 12'), psg.InputText('10', size=5, key='replicas'), psg.Button(
+        [psg.Text('Replicas: ', size=6, font='Calibri 12'), psg.InputText('10', size=5, key='replicasCamiones'), psg.Button(
             'Correr Simulacion', size=(15, 1), key='simucamion', button_color=('black', 'white'))],
         [psg.Button('Close', size=(15, 1), key='close',
                     button_color=('black', 'white'))]
@@ -139,43 +139,76 @@ def main():
             window['gvaral'].update(visible=True)
 
         if event == 'generar':
-            seed = int(values['seed'])
-            g = int(values['g'])
-            k = int(values['k'])
-            c = int(values['c'])
-            alpha = float(values['alpha'])
-            msg = Simulacion.pseudoRandNumbers(seed, g, k, c, alpha)
-            psg.popup("Resultados pruebas", msg[0], msg[1], msg[2], msg[3])
+            try:
+                seed = int(values['seed'])
+                g = int(values['g'])
+                k = int(values['k'])
+                c = int(values['c'])
+                alpha = float(values['alpha'])
+                msg = Simulacion.pseudoRandNumbers(seed, g, k, c, alpha)
+                psg.popup("Resultados pruebas", msg[0], msg[1], msg[2], msg[3])
+            except:
+                men = 'Error en los datos ingresados'
+                try:
+                    if int(values['g']) == 1:
+                        men += '\n g debe ser mayor a 1'
+                except:
+                    pass
+                psg.popup(men)
         if event == 'resultados':
-            psg.popup("Resultados pruebas", msg[0], msg[1], msg[2], msg[3])
+            try:
+                psg.popup("Resultados pruebas", msg[0], msg[1], msg[2], msg[3])
+            except:
+                psg.popup("Para generar numeros hay que ingresar datos")
 
         if event == 'simudado':
-            lanz = int(values['lanzamientos'])
-            replicas = int(values['replicas'])
-            msg = Dados.dados(lanz, replicas)
+            try:
+                lanz = int(values['lanzamientos'])
+                replicas = int(values['replicasDados'])
+                msg = Dados.dados(lanz, replicas)
+            except:
+                psg.popup("Se requieren datos para simular")
+                msg = 'Ingresar datos primero'
         if event == 'interval':
             psg.popup("Intervalos de confianza", msg)
 
         if event == 'simucamion':
-            Camiones.camiones(int(values['empleados']), float(values['cespcam']), float(
-                values['salario']), float(values['tiempoextra']), float(values['costoalmacen']), int(values['replicas']))
+            try:
+                Camiones.camiones(int(values['empleados']), float(values['cespcam']), float(
+                    values['salario']), float(values['tiempoextra']), float(values['costoalmacen']), int(values['replicasCamiones']))
+            except:
+                psg.popup("Se requieren datos para simular")
 
         if event == 'poisson':
-            num = [gVaral.gPoisson(int(values['lambda']))
-                   for i in range(int(values['pcant']))]
-            gVaral.writeNumbers(num, 'data_GVarAl/Poisson/gPoisson')
-            msg = gVaral.testPoisson(num, int(values['lambda']))
+            try:
+                num = [gVaral.gPoisson(int(values['lambda']))
+                    for i in range(int(values['pcant']))]
+                gVaral.writeNumbers(num, 'data_GVarAl/Poisson/gPoisson')
+                msg = gVaral.testPoisson(num, int(values['lambda']))
+            except:
+                psg.popup("Error en los datos")
+                msg = ['Error','no hay datos']
         if event == 'ppoisson':
-            psg.popup("Resultados pruebas", msg[0], msg[1])
+            try:
+                psg.popup("Resultados pruebas", msg[0], msg[1])
+            except:
+                psg.popup("Para poder hacer una prueba hay que generar numeros")
 
         if event == 'normal':
-            num = [gVaral.gNorm(float(values['mu']), float(values['s']))
-                   for i in range(int(values['ncant']))]
-            gVaral.writeNumbers(num, 'data_GVarAl/Normal/gNormal')
-            msg = gVaral.testNormal(num, float(
-                values['mu']), float(values['s']))
+            try:
+                num = [gVaral.gNorm(float(values['mu']), float(values['s']))
+                    for i in range(int(values['ncant']))]
+                gVaral.writeNumbers(num, 'data_GVarAl/Normal/gNormal')
+                msg = gVaral.testNormal(num, float(
+                    values['mu']), float(values['s']))
+            except:
+                psg.popup("Error en los datos")
+                msg = ['Error','no hay datos']
         if event == 'pnormal':
-            psg.popup("Resultados pruebas", msg[0], msg[1])
+            try:
+                psg.popup("Resultados pruebas", msg[0], msg[1])
+            except:
+                psg.popup("Para poder hacer una prueba hay que generar numeros")
 
     window.close()
 
