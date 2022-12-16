@@ -6,22 +6,26 @@ import matplotlib.pyplot as plt
 
 # Generacion de la variable aleatoria con distribucion de Poisson
 def gPoisson(lam: int, N: int = 0, T: float = 1, pse: list[float] = leerNum('data_Simulacion/Numeros.csv').copy()) -> int:
-    Tp = T * pse.pop(0)
-    if Tp >= math.exp(-lam):
-        N += 1
-        T = Tp
-        return gPoisson(lam, N, T)
-    else:
-        return N
-
-
+    try:
+        Tp = T * pse.pop(0)
+        if Tp >= math.exp(-lam):
+            N += 1
+            T = Tp
+            return gPoisson(lam, N, T, pse=pse)
+        else:
+            return N
+    except:
+        raise Exception('No hay suficientes numeros aleatorios')
+   
 # Generacion de la variable aleatoria con distribucion Normal
 def gNorm(mu: float, desv: float, pse: list[float] = leerNum('data_Simulacion/Numeros.csv').copy()) -> float:
-    n: float = (sum([pse.pop(0) for i in range(12)]) - 6) * desv + mu
-    if n <= 0:
-        return gNorm(mu, desv)
-    return n
-
+    try:
+        n: float = (sum([pse.pop(0) for i in range(12)]) - 6) * desv + mu
+        if n <= 0:
+            return gNorm(mu, desv, pse)
+        return n
+    except:
+        raise Exception('No hay suficientes numeros aleatorios')
 
 # Funcion para generar un histograma dados los limites de los intervalos
 def printHistogram(n: list[float] | list[int], bins: list[float] | list[int], title: str) -> None:

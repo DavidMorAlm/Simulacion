@@ -1,12 +1,14 @@
 import PySimpleGUI as psg
+import Gui
 import Simulacion
 import Dados
 import Camiones
 import gVaral
+import Leer
 
 
 def main():
-    psg.theme('BlueMono')
+    psg.theme('DarkAmber')
 
     layoutPseudos = []
     layoutDados = []
@@ -111,6 +113,8 @@ def main():
     tab4.Layout(layoutGVarAl)
 
     msg = []
+    msgp = []
+    msgn = []
 
     while True:
         event, values = window.read()  # type: ignore
@@ -166,6 +170,7 @@ def main():
                 lanz = int(values['lanzamientos'])
                 replicas = int(values['replicasDados'])
                 msg = Dados.dados(lanz, replicas)
+                Gui.createTable('data_Dados/Dados.csv', 'dados')
             except:
                 psg.popup("Se requieren datos para simular")
                 msg = 'Ingresar datos primero'
@@ -176,37 +181,46 @@ def main():
             try:
                 Camiones.camiones(int(values['empleados']), float(values['cespcam']), float(
                     values['salario']), float(values['tiempoextra']), float(values['costoalmacen']), int(values['replicasCamiones']))
+                Gui.createTable('data_Camiones/Camiones.csv', 'camiones')
             except:
                 psg.popup("Se requieren datos para simular")
 
         if event == 'poisson':
             try:
-                num = [gVaral.gPoisson(int(values['lambda']))
+                pse = Leer.leerNum('data_Simulacion/Numeros.csv')
+                num = [gVaral.gPoisson(int(values['lambda']), pse=pse)
                     for i in range(int(values['pcant']))]
                 gVaral.writeNumbers(num, 'data_GVarAl/Poisson/gPoisson')
-                msg = gVaral.testPoisson(num, int(values['lambda']))
-            except:
-                psg.popup("Error en los datos")
-                msg = ['Error','no hay datos']
+                msgp = gVaral.testPoisson(num, int(values['lambda']))
+                Gui.createList('data_GVarAl/Poisson/gPoisson.csv', 'numeros Poisson')
+            except Exception as e:
+                psg.popup(str(e), title='Error')
+                msgp = ['Error','no hay datos']
         if event == 'ppoisson':
             try:
-                psg.popup("Resultados pruebas", msg[0], msg[1])
+                psg.popup("Resultados pruebas", msgp[0], msgp[1])
+                if msgp != ['Error','no hay datos']:
+                    Gui.createTable('data_GVarAl/Poisson/Poisson.csv', 'prueba chi2 a poisson')
             except:
                 psg.popup("Para poder hacer una prueba hay que generar numeros")
 
         if event == 'normal':
             try:
-                num = [gVaral.gNorm(float(values['mu']), float(values['s']))
+                pseudos = Leer.leerNum('data_Simulacion/Numeros.csv')
+                num = [gVaral.gNorm(float(values['mu']), float(values['s']), pseudos)
                     for i in range(int(values['ncant']))]
                 gVaral.writeNumbers(num, 'data_GVarAl/Normal/gNormal')
-                msg = gVaral.testNormal(num, float(
+                msgn = gVaral.testNormal(num, float(
                     values['mu']), float(values['s']))
-            except:
-                psg.popup("Error en los datos")
-                msg = ['Error','no hay datos']
+                Gui.createList('data_GVarAl/Normal/gNormal.csv', 'numeros Poisson')
+            except Exception as e:
+                psg.popup(str(e), title='Error')
+                msgn = ['Error','no hay datos']
         if event == 'pnormal':
             try:
-                psg.popup("Resultados pruebas", msg[0], msg[1])
+                psg.popup("Resultados pruebas", msgn[0], msgn[1])
+                if msgn != ['Error','no hay datos']:
+                    Gui.createTable('data_GVarAl/Normal/Normal.csv', 'prueba chi2 a normal')
             except:
                 psg.popup("Para poder hacer una prueba hay que generar numeros")
 
